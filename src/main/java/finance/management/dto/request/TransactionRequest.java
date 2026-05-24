@@ -1,0 +1,28 @@
+package finance.management.dto.request;
+
+import jakarta.validation.constraints.*;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+/**
+ * Request DTO for creating a transaction.
+ */
+@Data
+public class TransactionRequest {
+
+    @NotNull(message = "Amount is required")
+    @DecimalMin(value = "0.01", message = "Amount must be positive")
+    @Digits(integer = 15, fraction = 2, message = "Amount format is invalid")
+    private BigDecimal amount;
+
+    @NotNull(message = "Date is required")
+    private LocalDate date;
+
+    @NotBlank(message = "Category is required")
+    private String category;
+
+    private String description;
+}
+
