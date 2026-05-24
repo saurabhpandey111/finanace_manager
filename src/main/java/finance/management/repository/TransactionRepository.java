@@ -21,11 +21,10 @@ import java.util.Optional;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     /**
-     * Finds all non-deleted transactions for a user with optional date range, category, and type filters,
+     * Finds all transactions for a user with optional date range, category, and type filters,
      * sorted by date descending.
      */
     @Query("SELECT t FROM Transaction t WHERE t.user = :user " +
-            "AND t.isDeleted = false " +
             "AND (:startDate IS NULL OR t.date >= :startDate) " +
             "AND (:endDate IS NULL OR t.date <= :endDate) " +
             "AND (:category IS NULL OR t.category = :category) " +
@@ -40,33 +39,29 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     Optional<Transaction> findByIdAndUser(Long id, User user);
 
-    @Query("SELECT COUNT(t) > 0 FROM Transaction t WHERE t.category = :category AND t.isDeleted = false")
-    boolean existsByCategory(@Param("category") Category category);
+    boolean existsByCategory(Category category);
 
-    /** Sum income for a user between two dates, excluding soft-deleted transactions. */
+    /** Sum income for a user between two dates. */
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
-            "WHERE t.user = :user AND t.isDeleted = false " +
-            "AND t.category.type = 'INCOME' " +
+            "WHERE t.user = :user AND t.category.type = 'INCOME' " +
             "AND t.date >= :startDate AND t.date <= :endDate")
     BigDecimal sumIncomeByUserAndDateRange(
             @Param("user") User user,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
 
-    /** Sum expenses for a user between two dates, excluding soft-deleted transactions. */
+    /** Sum expenses for a user between two dates. */
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t " +
-            "WHERE t.user = :user AND t.isDeleted = false " +
-            "AND t.category.type = 'EXPENSE' " +
+            "WHERE t.user = :user AND t.category.type = 'EXPENSE' " +
             "AND t.date >= :startDate AND t.date <= :endDate")
     BigDecimal sumExpensesByUserAndDateRange(
             @Param("user") User user,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate);
 
-    /** Get income totals grouped by category name for a month/year, excluding soft-deleted. */
+    /** Get income totals grouped by category name for a month/year. */
     @Query("SELECT t.category.name, SUM(t.amount) FROM Transaction t " +
-            "WHERE t.user = :user AND t.isDeleted = false " +
-            "AND t.category.type = 'INCOME' " +
+            "WHERE t.user = :user AND t.category.type = 'INCOME' " +
             "AND YEAR(t.date) = :year AND MONTH(t.date) = :month " +
             "GROUP BY t.category.name")
     List<Object[]> sumIncomeGroupedByCategoryForMonth(
@@ -74,10 +69,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("year") int year,
             @Param("month") int month);
 
-    /** Get expense totals grouped by category name for a month/year, excluding soft-deleted. */
+    /** Get expense totals grouped by category name for a month/year. */
     @Query("SELECT t.category.name, SUM(t.amount) FROM Transaction t " +
-            "WHERE t.user = :user AND t.isDeleted = false " +
-            "AND t.category.type = 'EXPENSE' " +
+            "WHERE t.user = :user AND t.category.type = 'EXPENSE' " +
             "AND YEAR(t.date) = :year AND MONTH(t.date) = :month " +
             "GROUP BY t.category.name")
     List<Object[]> sumExpensesGroupedByCategoryForMonth(
@@ -85,20 +79,18 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("year") int year,
             @Param("month") int month);
 
-    /** Get income totals grouped by category name for a year, excluding soft-deleted. */
+    /** Get income totals grouped by category name for a year. */
     @Query("SELECT t.category.name, SUM(t.amount) FROM Transaction t " +
-            "WHERE t.user = :user AND t.isDeleted = false " +
-            "AND t.category.type = 'INCOME' " +
+            "WHERE t.user = :user AND t.category.type = 'INCOME' " +
             "AND YEAR(t.date) = :year " +
             "GROUP BY t.category.name")
     List<Object[]> sumIncomeGroupedByCategoryForYear(
             @Param("user") User user,
             @Param("year") int year);
 
-    /** Get expense totals grouped by category name for a year, excluding soft-deleted. */
+    /** Get expense totals grouped by category name for a year. */
     @Query("SELECT t.category.name, SUM(t.amount) FROM Transaction t " +
-            "WHERE t.user = :user AND t.isDeleted = false " +
-            "AND t.category.type = 'EXPENSE' " +
+            "WHERE t.user = :user AND t.category.type = 'EXPENSE' " +
             "AND YEAR(t.date) = :year " +
             "GROUP BY t.category.name")
     List<Object[]> sumExpensesGroupedByCategoryForYear(
