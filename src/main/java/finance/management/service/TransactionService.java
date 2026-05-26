@@ -17,7 +17,7 @@ public interface TransactionService {
     TransactionResponse createTransaction(String username, TransactionRequest request);
 
     List<TransactionResponse> getTransactions(String username, LocalDate startDate,
-                                              LocalDate endDate, Long categoryId, CategoryType type);
+                                              LocalDate endDate, String category, CategoryType type);
 
     TransactionResponse updateTransaction(String username, Long id, UpdateTransactionRequest request);
 

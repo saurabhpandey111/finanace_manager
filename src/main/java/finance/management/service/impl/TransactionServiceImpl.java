@@ -60,13 +60,13 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<TransactionResponse> getTransactions(String username, LocalDate startDate,
-                                                     LocalDate endDate, Long categoryId, CategoryType type) {
+                                                     LocalDate endDate, String categoryName, CategoryType type) {
         User user = getUser(username);
 
         Category category = null;
-        if (categoryId != null) {
-            category = categoryRepository.findAccessibleById(categoryId, user)
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + categoryId));
+        if (categoryName != null && !categoryName.isBlank()) {
+            category = categoryRepository.findAccessibleByName(categoryName, user)
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + categoryName));
         }
 
         return transactionRepository.findByUserWithFilters(user, startDate, endDate, category, type)
